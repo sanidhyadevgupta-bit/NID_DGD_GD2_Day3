@@ -386,7 +386,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1092810655}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &890958307
@@ -404,9 +405,9 @@ MonoBehaviour:
   jumpPower: 10
   maxLeftSpeed: -3
   maxRightSpeed: 1.5
-  boopUpPower: 5
-  boopBackPower: 3
-  collisionCooldown: 0.5
+  boopUpPower: 10
+  boopBackPower: 30
+  collisionCooldown: 1
   fallDeathY: -5
 --- !u!114 &890958308
 MonoBehaviour:
@@ -509,12 +510,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1092810652}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.14, y: 2.36, z: -9.86}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.14, y: 1.3599999, z: -9.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 890958305}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1092810656
 MonoBehaviour:
@@ -769,7 +770,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1092810655}
   - {fileID: 1154466652}
   - {fileID: 890958305}
   - {fileID: 648714382}
