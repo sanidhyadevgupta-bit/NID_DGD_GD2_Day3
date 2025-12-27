@@ -2,23 +2,45 @@ using UnityEngine;
 
 public class ObstacleSpawner : MonoBehaviour
 {
-    public GameObject obstaclePrefab;
-    public float minSpawnTime = 1f;
-    public float maxSpawnTime = 3f;
+    [Header("Obstacle Prefabs")]
+    public GameObject[] obstaclePrefabs;
 
-    void Start()
+    [Header("Spawn Settings")]
+    public float spawnInterval = 1.75f;
+    public float treadmillSpeed = 3f;
+    public Vector2 heightRange = new Vector2(0.5f, 1.5f); // for variety
+
+    float timer;
+
+    void Update()
     {
-        ScheduleNext();
+        timer += Time.deltaTime;
+
+        if (timer >= spawnInterval)
+        {
+            SpawnObstacle();
+            timer = 0f;
+        }
     }
 
-    void Spawn()
+    void SpawnObstacle()
     {
-        Instantiate(obstaclePrefab, transform.position, Quaternion.identity);
-        ScheduleNext();
-    }
+        if (obstaclePrefabs.Length == 0)
+        {
+            Debug.LogWarning("No obstacles assigned!");
+            return;
+        }
 
-    void ScheduleNext()
-    {
-        Invoke(nameof(Spawn), Random.Range(minSpawnTime, maxSpawnTime));
+        Vector3 spawnPos = transform.position;
+        spawnPos.y += Random.Range(heightRange.x, heightRange.y);
+
+        GameObject prefab = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)];
+        GameObject ob = Instantiate(prefab, spawnPos, Quaternion.identity);
+
+        ObstacleMover mover = ob.GetComponent<ObstacleMover>();
+        if (!mover) mover = ob.AddComponent<ObstacleMover>();
+
+        mover.speed = treadmillSpeed;
+        ob.tag = "Obstacle";
     }
 }
