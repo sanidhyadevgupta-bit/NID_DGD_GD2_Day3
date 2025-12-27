@@ -37,11 +37,10 @@ public class PlayerMovement : MonoBehaviour
         }
 
         CheckFallDeath();
-        if (Input.GetKeyDown(KeyCode.Space) && !grounded)
-    Debug.Log("Blocked: Not Grounded");
+
 
     }
-    
+
 
     void FixedUpdate()
     {
@@ -113,8 +112,18 @@ public class PlayerMovement : MonoBehaviour
     // -----------------------------------
     void CheckFallDeath()
     {
-        if (transform.position.y < fallLimit)
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+       if (transform.position.y < fallLimit)
+{
+    var gm = Object.FindFirstObjectByType<GameManager>();
+    if (gm != null)
+    {
+        gm.GameOver();
+        enabled = false; // disable PlayerMovement script after death
+    }
+}
+
+
+
     }
 
     // -----------------------------------
