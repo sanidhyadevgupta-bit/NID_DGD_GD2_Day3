@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
+    
     [Header("Movement Forces")]
     public float runForce = 40f;
     public float maxRightSpeed = 3f;
@@ -35,9 +36,6 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             grounded = false;
         }
-
-        CheckFallDeath();
-
 
     }
 
@@ -108,25 +106,6 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // -----------------------------------
-    // Fail State
-    // -----------------------------------
-    void CheckFallDeath()
-    {
-       if (transform.position.y < fallLimit)
-{
-    var gm = Object.FindFirstObjectByType<GameManager>();
-    if (gm != null)
-    {
-        gm.GameOver();
-        enabled = false; // disable PlayerMovement script after death
-    }
-}
-
-
-
-    }
-
-    // -----------------------------------
     // Debug Gizmo (Ground status)
     // -----------------------------------
     void OnDrawGizmos()
@@ -141,3 +120,4 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawSphere(transform.position + Vector3.down * 0.45f, 0.05f);
     }
 }
+
