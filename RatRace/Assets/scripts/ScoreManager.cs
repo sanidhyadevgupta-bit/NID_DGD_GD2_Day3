@@ -9,6 +9,7 @@ public class ScoreManager : MonoBehaviour
     void Update()
     {
         score += Time.deltaTime;
-        scoreText.text = "Distance: " + Mathf.FloorToInt(score).ToString();
+     
+        scoreText.text = "Time " + Mathf.FloorToInt(score).ToString()+"sec";
     }
 }
