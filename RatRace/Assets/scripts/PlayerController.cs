@@ -6,64 +6,104 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 6f;
     public float jumpForce = 7f;
+     public float conveyorPush = 0f;
+
+
+    [Header("Ground Check")]
+    public LayerMask groundMask;
+    public Transform groundCheckPoint;
+    public float groundCheckRadius = 0.25f;
+
 
     private Rigidbody rb;
     private bool isGrounded = false;
 
     void Start()
-    {
+    {   
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; // Prevent tipping
+        rb.freezeRotation = true; // Stop player from tipping over
+        rb.linearDamping = 0.25f;
+
+      
     }
 
     void Update()
     {
+      
+        UpdateGrounded();
         HandleMovement();
         HandleJump();
         LockZAxis();
     }
 
-    void HandleMovement()
+    void UpdateGrounded()
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        rb.linearVelocity = new Vector3(moveX * moveSpeed, rb.linearVelocity.y, 0);
+        // Only the Ground layer counts (belt, floor)
+        isGrounded = Physics.CheckSphere(
+            groundCheckPoint.position,
+            groundCheckRadius,
+            groundMask
+        );
     }
+
+void HandleMovement()
+{
+    if (rb == null) return; // Safety so no null errors
+
+    float moveX = Input.GetAxisRaw("Horizontal");
+    Vector3 v = rb.linearVelocity;
+
+    // GROUND MOVEMENT
+    if (isGrounded)
+    {
+        // Player controls first — belt influence second
+        v.x = moveX * moveSpeed;
+
+        // Only add conveyor influence if any exists
+        if (Mathf.Abs(conveyorPush) > 0.01f)
+            v.x += conveyorPush * 0.6f;
+    }
+    else // AIR MOVEMENT
+    {
+        // Limited air control
+        v.x = Mathf.Lerp(v.x, moveX * (moveSpeed * 0.4f), 0.08f);
+
+        // Keep from drifting too much
+        v.x = Mathf.Clamp(v.x, -moveSpeed, moveSpeed);
+    }
+
+    rb.linearVelocity = v;
+}
+
+
 
     void HandleJump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            // Reset vertical velocity so jump is consistent
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
+            Vector3 vel = rb.linearVelocity;
+            vel.y = 0; 
+            rb.linearVelocity = vel;
+
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            AudioManager.Instance.PlayJump();
 
-            // Immediately remove grounded state so no double jump
-            isGrounded = false;
         }
-    }
-
-    // Only allow grounded if we are touching a collider beneath us
-    void OnCollisionEnter(Collision col)
-    {
-        if (col.contacts.Length > 0)
-        {
-            ContactPoint c = col.contacts[0];
-
-            // Ground only if the surface is below the player (prevents walls/ceilings)
-            if (Vector3.Dot(c.normal, Vector3.up) > 0.5f)
-                isGrounded = true;
-        }
-    }
-
-    // If no longer colliding with anything, remove grounded state
-    void OnCollisionExit(Collision col)
-    {
-        isGrounded = false;
     }
 
     void LockZAxis()
     {
         if (Mathf.Abs(transform.position.z) > 0.001f)
             transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // To visualize ground check
+        if (groundCheckPoint != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
+        }
     }
 }

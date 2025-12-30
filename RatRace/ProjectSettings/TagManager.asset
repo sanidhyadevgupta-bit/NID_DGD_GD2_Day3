@@ -8,6 +8,7 @@ TagManager:
   - Treadmill
   - LeftFall
   - RightFall
+  - Belt
   layers:
   - Default
   - TransparentFX

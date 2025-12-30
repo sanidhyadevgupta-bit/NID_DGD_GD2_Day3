@@ -1,20 +1,22 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;  // <<< ADD THIS
+    public static GameManager Instance;
 
     [Header("UI Panels")]
     public GameObject startPanel;
     public GameObject leftGameOverPanel;
     public GameObject rightGameOverPanel;
+    public GameObject endingGameOverPanel; // NEW: Final game ending
     public GameObject scoreText;
 
     bool isGameOver = false;
 
     void Awake()
     {
-        Instance = this;  // <<< AND ADD THIS
+        Instance = this;
     }
 
     void Start()
@@ -24,6 +26,7 @@ public class GameManager : MonoBehaviour
 
         if (leftGameOverPanel) leftGameOverPanel.SetActive(false);
         if (rightGameOverPanel) rightGameOverPanel.SetActive(false);
+        if (endingGameOverPanel) endingGameOverPanel.SetActive(false);
 
         if (scoreText) scoreText.SetActive(false);
 
@@ -61,6 +64,19 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
 
         if (rightGameOverPanel) rightGameOverPanel.SetActive(true);
+    }
+
+    // NEW: Called by DifficultyManager at the end of the game arc
+    public void TriggerGameEnd()
+    {
+        if (isGameOver) return;
+        isGameOver = true;
+
+        Debug.Log("GAME OVER (END OF LIFE)");
+        Time.timeScale = 0f;
+
+        if (endingGameOverPanel) endingGameOverPanel.SetActive(true);
+        else Debug.LogWarning("ENDING PANEL NOT ASSIGNED");
     }
 
     public void Restart()

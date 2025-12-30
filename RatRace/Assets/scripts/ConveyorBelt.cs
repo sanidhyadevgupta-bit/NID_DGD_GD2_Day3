@@ -1,61 +1,64 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class ConveyorBelt_XOnly : MonoBehaviour
+[RequireComponent(typeof(BoxCollider))]
+public class ConveyorBelt : MonoBehaviour
 {
-    [Header("Conveyor Settings")]
+    [Header("Settings")]
     public float beltSpeed = 5f;
-    public float changeInterval = 2f;
-
-    [Header("Texture Settings")]
-    public Renderer beltRenderer;
-    public float textureScrollMultiplier = 0.25f;
+    public float direction = 1f; // 1 = right, -1 = left
+    public float changeInterval = 3f;
 
     float timer;
-    float currentDirection = 1f; // +1 = right, -1 = left
+    List<Rigidbody> bodiesOnBelt = new();
 
-    // Track rigidbodies that touch the belt
-    readonly HashSet<Rigidbody> tracked = new HashSet<Rigidbody>();
+    void Update()
+    {
+        timer += Time.deltaTime;
+        if (timer >= changeInterval)
+        {
+            direction *= -1;
+            timer = 0f;
+        }
+    }
 
     void FixedUpdate()
     {
-        // Change direction ONLY on X axis
-        timer += Time.fixedDeltaTime;
-        if (timer >= changeInterval)
-        {
-            timer = 0f;
-            currentDirection = (Random.value < 0.5f) ? 1f : -1f; // Flip sign
-        }
+        Vector3 beltVel = Vector3.right * direction * beltSpeed;
 
-        // Move objects along X only
-        foreach (var rb in tracked)
+        foreach (Rigidbody rb in bodiesOnBelt)
         {
-            if (rb != null && !rb.isKinematic)
-            {
-                rb.position += Vector3.right * currentDirection * beltSpeed * Time.fixedDeltaTime;
-            }
-        }
+            if (rb == null) continue;
 
-        // Texture scroll (U axis only)
-        if (beltRenderer && beltRenderer.sharedMaterial)
-        {
-            Vector2 uv = beltRenderer.sharedMaterial.mainTextureOffset;
-            uv.x += currentDirection * beltSpeed * textureScrollMultiplier * Time.fixedDeltaTime;
-            beltRenderer.sharedMaterial.mainTextureOffset = uv;
+            // Core movement logic (RELIABLE)
+            Vector3 v = rb.linearVelocity;
+            v.x = beltVel.x;                 // conveyor sets horizontal motion
+            rb.linearVelocity = v;
+
+            // Player support
+            PlayerController pc = rb.GetComponent<PlayerController>();
+            if (pc)
+                pc.conveyorPush = beltVel.x; // Player knows which way belt is going
         }
     }
 
-    void OnCollisionEnter(Collision col)
+    void OnTriggerEnter(Collider other)
     {
-        Rigidbody rb = col.rigidbody;
-        if (rb != null && !rb.isKinematic)
-            tracked.Add(rb);
+        Rigidbody rb = other.attachedRigidbody;
+        if (rb != null && !bodiesOnBelt.Contains(rb))
+            bodiesOnBelt.Add(rb);
     }
 
-    void OnCollisionExit(Collision col)
+    void OnTriggerExit(Collider other)
     {
-        Rigidbody rb = col.rigidbody;
-        if (rb != null)
-            tracked.Remove(rb);
+        Rigidbody rb = other.attachedRigidbody;
+        if (rb != null && bodiesOnBelt.Contains(rb))
+        {
+            bodiesOnBelt.Remove(rb);
+
+            // player leaves belt → no influence
+            PlayerController pc = rb.GetComponent<PlayerController>();
+            if (pc) pc.conveyorPush = 0f;
+        }
     }
 }
