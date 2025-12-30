@@ -147,8 +147,8 @@ Transform:
   m_GameObject: {fileID: 115203881}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -17.9, y: -0.01, z: 0}
-  m_LocalScale: {x: 0.6593944, y: 0.6593944, z: 0.6593944}
+  m_LocalPosition: {x: -17.458, y: -0.011688, z: 0}
+  m_LocalScale: {x: 0.6429095, y: 0.6593944, z: 0.88193995}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1776100214}
@@ -2465,6 +2465,7 @@ GameObject:
   - component: {fileID: 910604587}
   - component: {fileID: 910604586}
   - component: {fileID: 910604585}
+  - component: {fileID: 910604590}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2588,12 +2589,31 @@ Transform:
   m_GameObject: {fileID: 910604584}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.38277, z: 0.84018}
+  m_LocalPosition: {x: 0, y: 2.38277, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &910604590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910604584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45db07f0119cb534c83af441ef525430, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  moveSpeed: 6
+  jumpForce: 7
+  groundCheckOffset: 0.6
+  groundCheckRadius: 0.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!1 &957800080
 GameObject:
   m_ObjectHideFlags: 0
@@ -2722,6 +2742,7 @@ GameObject:
   - component: {fileID: 973552478}
   - component: {fileID: 973552482}
   - component: {fileID: 973552483}
+  - component: {fileID: 973552484}
   m_Layer: 3
   m_Name: Treadmill
   m_TagString: Treadmill
@@ -2816,7 +2837,7 @@ Transform:
   m_GameObject: {fileID: 973552477}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.3, y: 0, z: 0.85940003}
+  m_LocalPosition: {x: -0.3, y: 0, z: 0}
   m_LocalScale: {x: 35.73984, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2839,6 +2860,27 @@ MonoBehaviour:
   beltRenderer: {fileID: 973552479}
   textureScrollMultiplier: 0.05
 --- !u!65 &973552483
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973552477}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.99999994, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!65 &973552484
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3528,9 +3570,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09d0363ed4d014840bb77e98a5a9d88c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
-  target: {fileID: 0}
-  smoothSpeed: 5
-  offset: {x: 0, y: 0, z: -10}
 --- !u!1 &1105020719
 GameObject:
   m_ObjectHideFlags: 0
@@ -4137,8 +4176,8 @@ Transform:
   m_GameObject: {fileID: 1365736394}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 17.47, y: 0, z: 0}
-  m_LocalScale: {x: 0.6593944, y: 0.6593944, z: 0.6593944}
+  m_LocalPosition: {x: 17.028, y: 0.0016875, z: 0}
+  m_LocalScale: {x: 0.6429095, y: 0.6593944, z: 0.88193995}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1776100214}
@@ -6047,7 +6086,7 @@ Transform:
   m_GameObject: {fileID: 1776100213}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.07, y: -0.05, z: 0.91}
+  m_LocalPosition: {x: -0.07, y: -0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
