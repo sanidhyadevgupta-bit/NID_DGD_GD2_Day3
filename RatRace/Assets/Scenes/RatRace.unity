@@ -280,7 +280,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConveyorBelt_XOnly
   beltSpeed: 5
   direction: 1
-  changeInterval: 3
+  changeInterval: 10
 --- !u!65 &162147214
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1183,16 +1183,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38f7fd23f6ca47f4e8c8d57df9fd0bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleSpawner
-  obstaclePrefab: {fileID: 983622925301845517, guid: 387985b39033efd47a2e86dfeaffdb3b, type: 3}
-  spawnInterval: 2
   spawnPoints:
   - {fileID: 1901354739}
   - {fileID: 2080505683}
   - {fileID: 1841994682}
   - {fileID: 372791258}
-  forcedZ: 0
-  xScaleRange: {x: 1, y: 2}
-  yScaleRange: {x: 0.5, y: 3}
+  obstaclePrefab: {fileID: 983622925301845517, guid: 387985b39033efd47a2e86dfeaffdb3b, type: 3}
+  spawnInterval: 2
+  minScale: 0.4
+  maxScale: 1.6
 --- !u!4 &347050678
 Transform:
   m_ObjectHideFlags: 0
@@ -3585,7 +3584,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 6
   jumpForce: 7
-  conveyorPush: 1
+  conveyorPush: 0
   groundMask:
     serializedVersion: 2
     m_Bits: 8
@@ -4995,27 +4994,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eac1660f0e15b214dadf46bb7ba40372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyManager
-  stage1Duration: 30
-  stage2Duration: 120
-  stage3Duration: 30
-  belt: {fileID: 162147213}
-  startSpeed: 3
-  maxSpeed: 10
-  endSpeed: 0
-  startDirectionInterval: 5
-  minDirectionInterval: 5
-  endDirectionInterval: 20
-  spawner: {fileID: 347050677}
-  startSpawnInterval: 8
-  minSpawnInterval: 1
-  endSpawnInterval: 1
+  easyTime: 30
+  rampTime: 60
+  peakTime: 60
+  decayTime: 30
   player: {fileID: 910604590}
-  startMoveSpeed: 6
-  peakMoveSpeed: 10
-  endMoveSpeed: 2
-  startJumpForce: 8
-  peakJumpForce: 12
-  endJumpForce: 4
+  playerMinSpeed: 4
+  playerMaxSpeed: 7
+  playerMinJump: 5
+  playerMaxJump: 9
+  spawner: {fileID: 347050677}
+  spawnSlow: 5
+  spawnFast: 0.5
+  obstacleMinScale: 0.5
+  obstacleMaxScale: 3
+  belt: {fileID: 162147213}
+  beltSlow: 2
+  beltFast: 15
   gameManager: {fileID: 877791095}
 --- !u!4 &1207458009
 Transform:

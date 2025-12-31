@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
@@ -39,41 +40,52 @@ public class PlayerController : MonoBehaviour
     void UpdateGrounded()
     {
         // Only the Ground layer counts (belt, floor)
-        isGrounded = Physics.CheckSphere(
-            groundCheckPoint.position,
-            groundCheckRadius,
-            groundMask
-        );
+        isGrounded = Physics.CheckSphere(groundCheckPoint.position,groundCheckRadius,groundMask);
+       
     }
 
 void HandleMovement()
 {
-    if (rb == null) return; // Safety so no null errors
+    if (rb == null) return;
 
     float moveX = Input.GetAxisRaw("Horizontal");
     Vector3 v = rb.linearVelocity;
 
-    // GROUND MOVEMENT
     if (isGrounded)
     {
-        // Player controls first — belt influence second
-        v.x = moveX * moveSpeed;
+        // BASE VELOCITY: belt motion (only!)
+        float baseSpeed = conveyorPush;
 
-        // Only add conveyor influence if any exists
-        if (Mathf.Abs(conveyorPush) > 0.01f)
-            v.x += conveyorPush * 0.6f;
+        // PLAYER INPUT ADDS OR SUBTRACTS
+        float inputSpeed = moveX * moveSpeed;
+
+        // FINAL:
+        // player input ALWAYS overrides belt when opposite
+        if (moveX != 0)
+        {
+            // If going opposite direction, ignore belt entirely
+            if (Mathf.Sign(moveX) != Mathf.Sign(conveyorPush))
+                v.x = inputSpeed;
+            else
+                v.x = baseSpeed + inputSpeed;
+        }
+        else
+        {
+            // No input → belt carries player
+            v.x = baseSpeed;
+        }
     }
-    else // AIR MOVEMENT
+    else
     {
-        // Limited air control
-        v.x = Mathf.Lerp(v.x, moveX * (moveSpeed * 0.4f), 0.08f);
-
-        // Keep from drifting too much
-        v.x = Mathf.Clamp(v.x, -moveSpeed, moveSpeed);
+        // AIR — limited control (don’t fight belt completely)
+        float airTarget = moveX * (moveSpeed * 0.4f);
+        v.x = Mathf.Lerp(v.x, airTarget + conveyorPush * 0.3f, 0.08f);
     }
 
     rb.linearVelocity = v;
 }
+
+
 
 
 

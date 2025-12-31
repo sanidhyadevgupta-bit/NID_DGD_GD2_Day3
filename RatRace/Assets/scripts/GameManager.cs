@@ -39,9 +39,14 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("START GAME PRESSED");
         Time.timeScale = 1f;
+
+        var diff = Object.FindFirstObjectByType<DifficultyManager>();
+        if (diff != null)
+            diff.BeginDifficulty();
         startPanel.SetActive(false);
 
         if (scoreText) scoreText.SetActive(true);
+
     }
 
     public void GameOverLeft()

@@ -22,25 +22,32 @@ public class ConveyorBelt : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+void FixedUpdate()
+{
+    Vector3 beltVel = Vector3.right * direction * beltSpeed;
+
+    foreach (Rigidbody rb in bodiesOnBelt)
     {
-        Vector3 beltVel = Vector3.right * direction * beltSpeed;
+        if (rb == null) continue;
 
-        foreach (Rigidbody rb in bodiesOnBelt)
+        PlayerController pc = rb.GetComponent<PlayerController>();
+
+        // PLAYER LOGIC (belt influence but not override)
+        if (pc != null)
         {
-            if (rb == null) continue;
-
-            // Core movement logic (RELIABLE)
-            Vector3 v = rb.linearVelocity;
-            v.x = beltVel.x;                 // conveyor sets horizontal motion
-            rb.linearVelocity = v;
-
-            // Player support
-            PlayerController pc = rb.GetComponent<PlayerController>();
-            if (pc)
-                pc.conveyorPush = beltVel.x; // Player knows which way belt is going
+            // Let player script handle movement
+            pc.conveyorPush = beltVel.x;
+            continue;
         }
+
+        // OBSTACLES & OTHER RIGIDBODIES
+        // Directly move them with the belt
+        Vector3 v = rb.linearVelocity;
+        v.x = beltVel.x;
+        rb.linearVelocity = v;
     }
+}
+
 
     void OnTriggerEnter(Collider other)
     {

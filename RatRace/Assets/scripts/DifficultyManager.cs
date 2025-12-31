@@ -2,163 +2,130 @@ using UnityEngine;
 
 public class DifficultyManager : MonoBehaviour
 {
-    [Header("Timeline (seconds)")]
-    public float stage1Duration = 30f;  // Early life
-    public float stage2Duration = 60f;  // Adulthood / struggle
-    public float stage3Duration = 60f;  // Slowdown / acceptance
+    [Header("Phase Durations")]
+    public float easyTime = 30f;
+    public float rampTime = 60f;
+    public float peakTime = 30f;
+    public float decayTime = 30f;
 
-    private float totalTime;
-    private float elapsed = 0f;
+    private float timer = 0f;
 
-    [Header("Conveyor Settings")]
-    public ConveyorBelt belt;
-    public float startSpeed = 3f;
-    public float maxSpeed = 10f;
-    public float endSpeed = 0f;
-
-    // belt direction flip frequency
-    public float startDirectionInterval = 3f;
-    public float minDirectionInterval = 0.8f;
-    public float endDirectionInterval = 5f;
-
-    [Header("Spawner Settings")]
-    public ObstacleSpawner spawner;
-    public float startSpawnInterval = 3f;
-    public float minSpawnInterval = 0.8f;
-    public float endSpawnInterval = 3.5f;
-
-    [Header("Player Settings")]
+    [Header("Player")]
     public PlayerController player;
-    public float startMoveSpeed = 8f;
-    public float peakMoveSpeed = 10f;
-    public float endMoveSpeed = 2f;
+    public float playerMinSpeed = 3f;
+    public float playerMaxSpeed = 9f;
+    public float playerMinJump = 6f;
+    public float playerMaxJump = 12f;
 
-    public float startJumpForce = 9f;
-    public float peakJumpForce = 12f;
-    public float endJumpForce = 4f;
+    [Header("Spawning")]
+    public ObstacleSpawner spawner;
+    public float spawnSlow = 2.5f;
+    public float spawnFast = 0.6f;
 
-    [Header("Manager")]
-    public GameManager gameManager; // optional but recommended
+    [Header("Obstacle Scaling")]
+    public float obstacleMinScale = 0.4f;
+    public float obstacleMaxScale = 1.6f;
 
-    void Start()
+    [Header("Belt")]
+    public ConveyorBelt belt;
+    public float beltSlow = 2f;
+    public float beltFast = 12f;
+
+    [Header("End")]
+    public GameManager gameManager;
+
+    bool started = false;
+
+    public void BeginDifficulty()
     {
-        totalTime = stage1Duration + stage2Duration + stage3Duration;
-
-        // Initialize systems to starting values
-        if (belt != null)
-        {
-            belt.beltSpeed = startSpeed;
-            belt.changeInterval = startDirectionInterval;
-        }
-
-        if (spawner != null)
-        {
-            spawner.spawnInterval = startSpawnInterval;
-        }
-
-        if (player != null)
-        {
-            player.moveSpeed = startMoveSpeed;
-            player.jumpForce = startJumpForce;
-        }
+        timer = 0f;
+        started = true;
     }
 
     void Update()
     {
-        elapsed += Time.deltaTime;
+        if (!started || Time.timeScale == 0f) return;
 
-        // Stage 1: Warm-up (0 to stage1Duration)
-        if (elapsed <= stage1Duration)
+        timer += Time.deltaTime;
+
+        // PHASE 1: EASY
+        if (timer <= easyTime)
         {
-            float t = elapsed / stage1Duration;
-
-            if (belt != null)
-            {
-                belt.beltSpeed = Mathf.Lerp(startSpeed, (startSpeed + maxSpeed) * 0.5f, t);
-                belt.changeInterval = Mathf.Lerp(startDirectionInterval, minDirectionInterval * 2f, t);
-            }
-
-            if (spawner != null)
-            {
-                spawner.spawnInterval = Mathf.Lerp(startSpawnInterval, (startSpawnInterval + minSpawnInterval) * 0.5f, t);
-            }
-
-            if (player != null)
-            {
-                player.moveSpeed = Mathf.Lerp(startMoveSpeed, peakMoveSpeed, t);
-                player.jumpForce = Mathf.Lerp(startJumpForce, peakJumpForce, t);
-            }
+            float t = timer / easyTime;
+            ApplyDifficulty(
+                Mathf.Lerp(playerMinSpeed, playerMinSpeed * 1.2f, t),
+                Mathf.Lerp(playerMinJump,  playerMinJump * 1.2f,  t),
+                Mathf.Lerp(spawnSlow,      spawnSlow * 0.8f,     t),
+                Mathf.Lerp(beltSlow,       beltSlow * 1.2f,      t)
+            );
+            SetScale(0f);
+            return;
         }
-        // Stage 2: Peak Difficulty (middle life: stage1Duration → stage1+stage2)
-        else if (elapsed <= stage1Duration + stage2Duration)
+
+        // PHASE 2: RAMP
+        if (timer <= easyTime + rampTime)
         {
-            float t = (elapsed - stage1Duration) / stage2Duration;
-
-            if (belt != null)
-            {
-                belt.beltSpeed = Mathf.Lerp((startSpeed + maxSpeed) * 0.5f, maxSpeed, t);
-                belt.changeInterval = Mathf.Lerp(minDirectionInterval * 2f, minDirectionInterval, t);
-            }
-
-            if (spawner != null)
-            {
-                spawner.spawnInterval = Mathf.Lerp((startSpawnInterval + minSpawnInterval) * 0.5f, minSpawnInterval, t);
-            }
-
-            if (player != null)
-            {
-                player.moveSpeed = Mathf.Lerp(peakMoveSpeed, (peakMoveSpeed + endMoveSpeed) * 0.5f, t);
-                player.jumpForce = Mathf.Lerp(peakJumpForce, (peakJumpForce + endJumpForce) * 0.5f, t);
-            }
+            float t = (timer - easyTime) / rampTime;
+            ApplyDifficulty(
+                Mathf.Lerp(playerMinSpeed, playerMaxSpeed, t),
+                Mathf.Lerp(playerMinJump,  playerMaxJump,  t),
+                Mathf.Lerp(spawnSlow,      spawnFast,      t),
+                Mathf.Lerp(beltSlow,       beltFast,       t)
+            );
+            SetScale(t);
+            return;
         }
-        // Stage 3: Slowdown (late life: final minute)
-        else if (elapsed <= totalTime)
+
+        // PHASE 3: PEAK
+        if (timer <= easyTime + rampTime + peakTime)
         {
-            float t = (elapsed - stage1Duration - stage2Duration) / stage3Duration;
-
-            if (belt != null)
-            {
-                belt.beltSpeed = Mathf.Lerp(maxSpeed, endSpeed, t);
-                belt.changeInterval = Mathf.Lerp(minDirectionInterval, endDirectionInterval, t);
-            }
-
-            if (spawner != null)
-            {
-                spawner.spawnInterval = Mathf.Lerp(minSpawnInterval, endSpawnInterval, t);
-            }
-
-            if (player != null)
-            {
-                player.moveSpeed = Mathf.Lerp((peakMoveSpeed + endMoveSpeed) * 0.5f, endMoveSpeed, t);
-                player.jumpForce = Mathf.Lerp((peakJumpForce + endJumpForce) * 0.5f, endJumpForce, t);
-            }
+            ApplyDifficulty(playerMaxSpeed, playerMaxJump, spawnFast, beltFast);
+            SetScale(1f);
+            return;
         }
-        // END OF LIFE / GAME COMPLETE
-        else
+
+        // PHASE 4: DECAY
+        if (timer <= easyTime + rampTime + peakTime + decayTime)
         {
-            if (belt != null)
-            {
-                belt.beltSpeed = 0f;
-                belt.changeInterval = Mathf.Infinity;
-            }
-
-            if (spawner != null)
-            {
-                spawner.spawnInterval = 999f; // Stops spawns
-            }
-
-            if (player != null)
-            {
-                player.moveSpeed = 0f;
-                player.jumpForce = 0f;
-            }
-
-            if (gameManager != null)
-            {
-                GameManager.Instance.TriggerGameEnd();
-            }
-
-            enabled = false; // Stop updating
+            float t = (timer - easyTime - rampTime - peakTime) / decayTime;
+            ApplyDifficulty(
+                Mathf.Lerp(playerMaxSpeed, 0, t),
+                Mathf.Lerp(playerMaxJump,  0, t),
+                Mathf.Lerp(spawnFast,      5f, t),  // essentially stop spawning
+                Mathf.Lerp(beltFast,       0, t)
+            );
+            SetScale(1f - t);
+            return;
         }
+
+        // END
+        EndGame();
+    }
+
+    void ApplyDifficulty(float speed, float jump, float spawn, float beltSpeed)
+    {
+        player.moveSpeed = speed;
+        player.jumpForce = jump;
+        spawner.spawnInterval = spawn;
+        belt.beltSpeed = beltSpeed;
+    }
+
+    void SetScale(float t)
+    {
+        spawner.minScale = Mathf.Lerp(obstacleMinScale, obstacleMinScale * 1.2f, t);
+        spawner.maxScale = Mathf.Lerp(obstacleMinScale * 1.2f, obstacleMaxScale, t);
+    }
+
+    void EndGame()
+    {
+        player.moveSpeed = 0;
+        player.jumpForce = 0;
+        spawner.spawnInterval = 999f;
+        belt.beltSpeed = 0f;
+
+        if (gameManager != null)
+            gameManager.TriggerGameEnd();
+
+        enabled = false;
     }
 }
