@@ -15,38 +15,44 @@ public class ConveyorBelt : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-        if (timer >= changeInterval)
+        if (timer >= changeInterval) // direction change 
         {
             direction *= -1;
             timer = 0f;
+            // Trigger lamp
+            WarningLight lamp = FindFirstObjectByType<WarningLight>();
+            if (lamp != null){
+                lamp.FlashDirection(direction);
+                Debug.Log("Flashing");
+        }
         }
     }
 
-void FixedUpdate()
-{
-    Vector3 beltVel = Vector3.right * direction * beltSpeed;
-
-    foreach (Rigidbody rb in bodiesOnBelt)
+    void FixedUpdate()
     {
-        if (rb == null) continue;
+        Vector3 beltVel = Vector3.right * direction * beltSpeed;
 
-        PlayerController pc = rb.GetComponent<PlayerController>();
-
-        // PLAYER LOGIC (belt influence but not override)
-        if (pc != null)
+        foreach (Rigidbody rb in bodiesOnBelt)
         {
-            // Let player script handle movement
-            pc.conveyorPush = beltVel.x;
-            continue;
-        }
+            if (rb == null) continue;
 
-        // OBSTACLES & OTHER RIGIDBODIES
-        // Directly move them with the belt
-        Vector3 v = rb.linearVelocity;
-        v.x = beltVel.x;
-        rb.linearVelocity = v;
+            PlayerController pc = rb.GetComponent<PlayerController>();
+
+            // PLAYER LOGIC (belt influence but not override)
+            if (pc != null)
+            {
+                // Let player script handle movement
+                pc.conveyorPush = beltVel.x;
+                continue;
+            }
+
+            // OBSTACLES & OTHER RIGIDBODIES
+            // Directly move them with the belt
+            Vector3 v = rb.linearVelocity;
+            v.x = beltVel.x;
+            rb.linearVelocity = v;
+        }
     }
-}
 
 
     void OnTriggerEnter(Collider other)

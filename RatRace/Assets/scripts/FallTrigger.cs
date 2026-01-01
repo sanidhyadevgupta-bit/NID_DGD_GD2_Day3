@@ -22,12 +22,12 @@ public class FallTrigger : MonoBehaviour
         if (side == Side.Left)
         {
             Debug.Log("LEFT TRIGGER ACTIVATED");
-            GameManager.Instance.GameOverLeft();
+            GameManager.Instance.GameOver();
         }
         else
         {
             Debug.Log("RIGHT TRIGGER ACTIVATED");
-            GameManager.Instance.GameOverRight();
+            GameManager.Instance.GameOver();
         }
     }
 }
