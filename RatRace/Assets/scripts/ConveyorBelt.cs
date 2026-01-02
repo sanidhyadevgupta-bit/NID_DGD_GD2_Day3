@@ -19,12 +19,21 @@ public class ConveyorBelt : MonoBehaviour
         {
             direction *= -1;
             timer = 0f;
+            // Screen shake on direction change
+            CameraShake shake = FindFirstObjectByType<CameraShake>();
+            if (shake != null)
+            {
+                float intensity = Mathf.Clamp(beltSpeed / 10f, 0.6f, 1.2f);
+                shake.Shake(intensity);
+            }
+
             // Trigger lamp
             WarningLight lamp = FindFirstObjectByType<WarningLight>();
-            if (lamp != null){
+            if (lamp != null)
+            {
                 lamp.FlashDirection(direction);
                 Debug.Log("Flashing");
-        }
+            }
         }
     }
 

@@ -106,6 +106,8 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("RESTART");
         Time.timeScale = 1f;
+    
+       
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

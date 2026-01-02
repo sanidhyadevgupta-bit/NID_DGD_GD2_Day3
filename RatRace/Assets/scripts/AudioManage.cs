@@ -1,12 +1,13 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
 
     [Header("Audio Sources")]
-    public AudioSource musicSource;     // for background loop
-    public AudioSource sfxSource;       // for sound effects
+    public AudioSource musicSource;
+    public AudioSource sfxSource;
 
     [Header("Clips")]
     public AudioClip backgroundMusic;
@@ -20,23 +21,33 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
-        DontDestroyOnLoad(gameObject);  // persists between scenes
+        DontDestroyOnLoad(gameObject);
+
+        // Listen for scene reloads
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    void Start()
+    void OnDestroy()
     {
-        PlayBackgroundMusic();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    public void PlayBackgroundMusic()
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (backgroundMusic != null)
-        {
-            musicSource.clip = backgroundMusic;
-            musicSource.loop = true;
-            musicSource.Play();
-        }
+        RestartMusic();   // 🔥 GUARANTEED RESTART POINT
+    }
+
+    public void RestartMusic()
+    {
+        if (musicSource == null || backgroundMusic == null) return;
+
+        musicSource.Stop();
+        musicSource.clip = backgroundMusic;
+        musicSource.time = 0f;
+        musicSource.loop = true;
+        musicSource.Play();
     }
 
     public void PlayJump()

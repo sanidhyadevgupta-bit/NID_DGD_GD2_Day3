@@ -1,5 +1,8 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+
 
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
 public class PlayerController : MonoBehaviour
@@ -11,6 +14,14 @@ public class PlayerController : MonoBehaviour
     public float regenRate = 15f; // stamina per second when not jumping
     public float fatigueJumpMultiplier = 0.5f; // reduce jump when tired
     public UnityEngine.UI.Slider staminaBar;
+
+    [Header("Low Stamina Vignette")]
+    public Volume postProcessVolume;
+    public float vignetteMaxIntensity = 0.45f;
+
+    Vignette vignette;
+
+
 
     [Header("Movement")]
     public float moveSpeed = 6f;
@@ -32,13 +43,14 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true; // Stop player from tipping over
         rb.linearDamping = 0.25f;
-
-
-
         currentStamina = maxStamina;
         if (staminaBar != null)
             staminaBar.maxValue = maxStamina;
 
+        if (postProcessVolume != null)
+        {
+            postProcessVolume.profile.TryGet(out vignette);
+        }
 
     }
 
@@ -50,6 +62,18 @@ public class PlayerController : MonoBehaviour
         HandleJump();
         LockZAxis();
         UpdateStamina();
+        // VIGNETTE BASED ON STAMINA
+        if (vignette != null)
+        {
+            float stamina01 = currentStamina / maxStamina; // 1 = full, 0 = empty
+            float target = Mathf.Lerp(vignetteMaxIntensity, 0f, stamina01);
+            vignette.intensity.value = Mathf.Lerp(
+                vignette.intensity.value,
+                target,
+                Time.deltaTime * 3f
+            );
+        }
+
 
 
     }
